@@ -1,0 +1,11 @@
+STUDENT COURSE & PERFORMANCE MANAGEMENT SYSTEM
+
+Abstract
+
+The Student Course and Performance Management System is a desktop-based Java application developed to simplify the management of student academic records in a college environment. The project provides an interface for storing and managing details related to students, courses, enrollments, marks, attendance, and grades in a single system.
+
+This application is built using Java Swing for the graphical user interface and follows an object-oriented design approach. It allows users to add, update, delete, and view student and course records. It also supports enrollment management, performance tracking, attendance recording, and automatic grade generation based on marks obtained by students.
+
+The system includes a dashboard that displays useful academic insights such as total students, total courses, total enrollments, average marks, average attendance, and top performers. Data is stored locally using CSV files, which makes the project lightweight, simple, and suitable for academic demonstration.
+
+This project demonstrates the practical use of Java programming concepts such as classes, objects, collections, file handling, event-driven programming, and GUI development. It can be used as a basic model for larger academic management systems in educational institutions.
