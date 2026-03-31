@@ -7,6 +7,7 @@ import com.college.scms.service.CampusService;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -21,14 +22,13 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
-import javax.swing.ButtonModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
-import java.awt.BorderLayout;
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -49,7 +49,6 @@ public class MainFrame extends JFrame {
     private static final Color PANEL = Color.WHITE;
     private static final Color PRIMARY = new Color(18, 92, 173);
     private static final Color ACCENT = new Color(17, 153, 142);
-    private static final Color SECONDARY = new Color(255, 140, 66);
     private static final Color TEXT = new Color(34, 45, 65);
     private static final Color MUTED = new Color(114, 126, 149);
     private static final Font TITLE_FONT = new Font("Segoe UI", Font.BOLD, 26);
@@ -226,7 +225,8 @@ public class MainFrame extends JFrame {
         fields.add(createLabeledField("Department", departmentField));
         fields.add(createLabeledField("Semester", semesterField));
         fields.add(createLabeledField("Email", emailField));
-        form.add(fields, BorderLayout.CENTER);
+        form.add(createFormScrollPane(fields), BorderLayout.CENTER);
+        form.setPreferredSize(new Dimension(400, 0));
 
         JButton loadButton = createNeutralButton("Load Selected");
         loadButton.addActionListener(e -> {
@@ -246,11 +246,12 @@ public class MainFrame extends JFrame {
         JButton addButton = createPrimaryButton("Add Student");
         addButton.addActionListener(e -> {
             try {
+                int semester = parseRequiredInt(semesterField, "Semester");
                 service.addStudent(new Student(
                         idField.getText().trim(),
                         nameField.getText().trim(),
                         departmentField.getText().trim(),
-                        Integer.parseInt(semesterField.getText().trim()),
+                        semester,
                         emailField.getText().trim()
                 ));
                 clearStudentForm(idField, nameField, departmentField, semesterField, emailField);
@@ -263,11 +264,12 @@ public class MainFrame extends JFrame {
         JButton updateButton = createAccentButton("Update Student");
         updateButton.addActionListener(e -> {
             try {
+                int semester = parseRequiredInt(semesterField, "Semester");
                 service.updateStudent(new Student(
                         idField.getText().trim(),
                         nameField.getText().trim(),
                         departmentField.getText().trim(),
-                        Integer.parseInt(semesterField.getText().trim()),
+                        semester,
                         emailField.getText().trim()
                 ));
                 clearStudentForm(idField, nameField, departmentField, semesterField, emailField);
@@ -320,7 +322,8 @@ public class MainFrame extends JFrame {
         fields.add(createLabeledField("Credits", creditsField));
         fields.add(createLabeledField("Instructor", instructorField));
         fields.add(createLabeledField("Capacity", capacityField));
-        form.add(fields, BorderLayout.CENTER);
+        form.add(createFormScrollPane(fields), BorderLayout.CENTER);
+        form.setPreferredSize(new Dimension(400, 0));
 
         JButton loadButton = createNeutralButton("Load Selected");
         loadButton.addActionListener(e -> {
@@ -340,12 +343,14 @@ public class MainFrame extends JFrame {
         JButton addButton = createPrimaryButton("Add Course");
         addButton.addActionListener(e -> {
             try {
+                int credits = parseRequiredInt(creditsField, "Credits");
+                int capacity = parseRequiredInt(capacityField, "Capacity");
                 service.addCourse(new Course(
                         idField.getText().trim(),
                         titleField.getText().trim(),
-                        Integer.parseInt(creditsField.getText().trim()),
+                        credits,
                         instructorField.getText().trim(),
-                        Integer.parseInt(capacityField.getText().trim())
+                        capacity
                 ));
                 clearCourseForm(idField, titleField, creditsField, instructorField, capacityField);
                 refreshAllData();
@@ -357,12 +362,14 @@ public class MainFrame extends JFrame {
         JButton updateButton = createAccentButton("Update Course");
         updateButton.addActionListener(e -> {
             try {
+                int credits = parseRequiredInt(creditsField, "Credits");
+                int capacity = parseRequiredInt(capacityField, "Capacity");
                 service.updateCourse(new Course(
                         idField.getText().trim(),
                         titleField.getText().trim(),
-                        Integer.parseInt(creditsField.getText().trim()),
+                        credits,
                         instructorField.getText().trim(),
-                        Integer.parseInt(capacityField.getText().trim())
+                        capacity
                 ));
                 clearCourseForm(idField, titleField, creditsField, instructorField, capacityField);
                 refreshAllData();
@@ -410,7 +417,8 @@ public class MainFrame extends JFrame {
         fields.add(createLabeledField("Course", enrollmentCourseBox));
         fields.add(createLabeledField("Marks", marksField));
         fields.add(createLabeledField("Attendance %", attendanceField));
-        form.add(fields, BorderLayout.CENTER);
+        form.add(createFormScrollPane(fields), BorderLayout.CENTER);
+        form.setPreferredSize(new Dimension(400, 0));
 
         JButton loadButton = createNeutralButton("Load Selected");
         loadButton.addActionListener(e -> {
@@ -428,11 +436,13 @@ public class MainFrame extends JFrame {
         JButton addButton = createPrimaryButton("Add Enrollment");
         addButton.addActionListener(e -> {
             try {
+                double marks = parseRequiredDouble(marksField, "Marks");
+                double attendance = parseRequiredDouble(attendanceField, "Attendance");
                 service.addEnrollment(
                         parseSelection(enrollmentStudentBox),
                         parseSelection(enrollmentCourseBox),
-                        Double.parseDouble(marksField.getText().trim()),
-                        Double.parseDouble(attendanceField.getText().trim())
+                        marks,
+                        attendance
                 );
                 clearEnrollmentForm(marksField, attendanceField);
                 refreshAllData();
@@ -444,11 +454,13 @@ public class MainFrame extends JFrame {
         JButton updateButton = createAccentButton("Update Enrollment");
         updateButton.addActionListener(e -> {
             try {
+                double marks = parseRequiredDouble(marksField, "Marks");
+                double attendance = parseRequiredDouble(attendanceField, "Attendance");
                 service.updateEnrollment(
                         parseSelection(enrollmentStudentBox),
                         parseSelection(enrollmentCourseBox),
-                        Double.parseDouble(marksField.getText().trim()),
-                        Double.parseDouble(attendanceField.getText().trim())
+                        marks,
+                        attendance
                 );
                 clearEnrollmentForm(marksField, attendanceField);
                 refreshAllData();
@@ -568,6 +580,16 @@ public class MainFrame extends JFrame {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setOpaque(false);
         return panel;
+    }
+
+    private JScrollPane createFormScrollPane(JPanel fields) {
+        JScrollPane scrollPane = new JScrollPane(fields);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        return scrollPane;
     }
 
     private JPanel createLabeledField(String labelText, Component component) {
@@ -692,6 +714,30 @@ public class MainFrame extends JFrame {
             throw new IllegalArgumentException("Please select a value.");
         }
         return selection.toString().split(" - ", 2)[0];
+    }
+
+    private int parseRequiredInt(JTextField field, String fieldName) {
+        String value = field.getText().trim();
+        if (value.isEmpty()) {
+            throw new IllegalArgumentException(fieldName + " is required.");
+        }
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(fieldName + " must be a valid whole number.");
+        }
+    }
+
+    private double parseRequiredDouble(JTextField field, String fieldName) {
+        String value = field.getText().trim();
+        if (value.isEmpty()) {
+            throw new IllegalArgumentException(fieldName + " is required.");
+        }
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException exception) {
+            throw new IllegalArgumentException(fieldName + " must be a valid number.");
+        }
     }
 
     private void refreshAllData() {
@@ -905,12 +951,10 @@ public class MainFrame extends JFrame {
 
     private static final class ColorfulButton extends JButton {
         private final Color baseColor;
-        private final Color textColor;
 
         private ColorfulButton(String text, Color baseColor, Color textColor) {
             super(text);
             this.baseColor = baseColor;
-            this.textColor = textColor;
             setForeground(textColor);
             setFocusPainted(false);
             setOpaque(false);

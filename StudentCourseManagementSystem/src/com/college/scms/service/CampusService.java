@@ -43,6 +43,7 @@ public class CampusService {
         for (Enrollment enrollment : enrollments) {
             Student student = students.get(enrollment.getStudentId());
             Course course = courses.get(enrollment.getCourseId());
+
             if (student != null && course != null) {
                 views.add(new EnrollmentView(
                         student.getId(),
@@ -51,7 +52,8 @@ public class CampusService {
                         course.getTitle(),
                         enrollment.getMarks(),
                         enrollment.getAttendance(),
-                        enrollment.getGrade()));
+                        enrollment.getGrade()
+                ));
             }
         }
         return views;
@@ -66,7 +68,7 @@ public class CampusService {
     }
 
     public void updateStudent(Student student) {
-        require(!students.containsKey(student.getId()), "Student record not found.");
+        require(students.containsKey(student.getId()), "Student record not found.");
         require(student.getSemester() > 0, "Semester must be greater than 0.");
         students.put(student.getId(), student);
         persist();
@@ -88,14 +90,16 @@ public class CampusService {
     }
 
     public void updateCourse(Course course) {
-        require(!courses.containsKey(course.getId()), "Course record not found.");
+        require(courses.containsKey(course.getId()), "Course record not found.");
         require(course.getCredits() > 0, "Credits must be greater than 0.");
         require(course.getCapacity() > 0, "Capacity must be greater than 0.");
 
         long countForCourse = enrollments.stream()
                 .filter(enrollment -> enrollment.getCourseId().equals(course.getId()))
                 .count();
-        require(course.getCapacity() >= countForCourse, "Capacity cannot be less than current enrollment count.");
+
+        require(course.getCapacity() >= countForCourse,
+                "Capacity cannot be less than current enrollment count.");
 
         courses.put(course.getId(), course);
         persist();
@@ -114,13 +118,18 @@ public class CampusService {
         require(attendance >= 0 && attendance <= 100, "Attendance must be between 0 and 100.");
 
         boolean exists = enrollments.stream()
-                .anyMatch(enrollment -> enrollment.getStudentId().equals(studentId) && enrollment.getCourseId().equals(courseId));
+                .anyMatch(enrollment ->
+                        enrollment.getStudentId().equals(studentId)
+                                && enrollment.getCourseId().equals(courseId));
+
         require(!exists, "This student is already enrolled in the selected course.");
 
         long countForCourse = enrollments.stream()
                 .filter(enrollment -> enrollment.getCourseId().equals(courseId))
                 .count();
-        require(countForCourse < courses.get(courseId).getCapacity(), "Course capacity has been reached.");
+
+        require(countForCourse < courses.get(courseId).getCapacity(),
+                "Course capacity has been reached.");
 
         enrollments.add(new Enrollment(studentId, courseId, marks, attendance));
         persist();
@@ -134,7 +143,8 @@ public class CampusService {
 
         for (int index = 0; index < enrollments.size(); index++) {
             Enrollment enrollment = enrollments.get(index);
-            if (enrollment.getStudentId().equals(studentId) && enrollment.getCourseId().equals(courseId)) {
+            if (enrollment.getStudentId().equals(studentId)
+                    && enrollment.getCourseId().equals(courseId)) {
                 enrollments.set(index, new Enrollment(studentId, courseId, marks, attendance));
                 persist();
                 return;
@@ -146,25 +156,46 @@ public class CampusService {
 
     public void deleteEnrollment(String studentId, String courseId) {
         enrollments.removeIf(enrollment ->
-                enrollment.getStudentId().equals(studentId) && enrollment.getCourseId().equals(courseId));
+                enrollment.getStudentId().equals(studentId)
+                        && enrollment.getCourseId().equals(courseId));
         persist();
     }
 
     public DashboardStats getDashboardStats() {
-        double averageMarks = enrollments.stream().mapToDouble(Enrollment::getMarks).average().orElse(0.0);
-        double averageAttendance = enrollments.stream().mapToDouble(Enrollment::getAttendance).average().orElse(0.0);
-        long highPerformers = enrollments.stream().filter(enrollment -> enrollment.getMarks() >= 85).count();
-        return new DashboardStats(students.size(), courses.size(), enrollments.size(), averageMarks, averageAttendance, (int) highPerformers);
+        double averageMarks = enrollments.stream()
+                .mapToDouble(Enrollment::getMarks)
+                .average()
+                .orElse(0.0);
+
+        double averageAttendance = enrollments.stream()
+                .mapToDouble(Enrollment::getAttendance)
+                .average()
+                .orElse(0.0);
+
+        long highPerformers = enrollments.stream()
+                .filter(enrollment -> enrollment.getMarks() >= 85)
+                .count();
+
+        return new DashboardStats(
+                students.size(),
+                courses.size(),
+                enrollments.size(),
+                averageMarks,
+                averageAttendance,
+                (int) highPerformers
+        );
     }
 
     public List<String> topPerformers() {
         Map<String, Double> averageByStudent = new LinkedHashMap<>();
+
         for (Student student : students.values()) {
             double avg = enrollments.stream()
                     .filter(enrollment -> enrollment.getStudentId().equals(student.getId()))
                     .mapToDouble(Enrollment::getMarks)
                     .average()
                     .orElse(-1);
+
             if (avg >= 0) {
                 averageByStudent.put(student.getId(), avg);
             }
@@ -175,7 +206,8 @@ public class CampusService {
                 .limit(5)
                 .map(entry -> {
                     Student student = students.get(entry.getKey());
-                    return student.getName() + " (" + student.getId() + ") - Avg Marks: " + String.format("%.2f", entry.getValue());
+                    return student.getName() + " (" + student.getId() + ") - Avg Marks: "
+                            + String.format("%.2f", entry.getValue());
                 })
                 .toList();
     }
