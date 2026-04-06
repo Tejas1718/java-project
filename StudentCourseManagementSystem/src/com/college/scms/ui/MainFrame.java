@@ -118,6 +118,9 @@ public class MainFrame extends JFrame {
         UIManager.put("Panel.background", BACKGROUND);
         UIManager.put("OptionPane.background", PANEL);
         UIManager.put("OptionPane.messageForeground", TEXT);
+        UIManager.put("TableHeader.background", PRIMARY);
+        UIManager.put("TableHeader.foreground", Color.WHITE);
+        UIManager.put("TableHeader.font", new Font("Segoe UI", Font.BOLD, 13));
     }
 
     private JPanel createHeroPanel() {
@@ -639,10 +642,13 @@ public class MainFrame extends JFrame {
 
         JTableHeader header = table.getTableHeader();
         header.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        header.setBackground(new Color(18, 92, 173));
+        header.setBackground(PRIMARY);
         header.setForeground(Color.WHITE);
         header.setReorderingAllowed(false);
         header.setBorder(BorderFactory.createEmptyBorder());
+        header.setOpaque(true);
+        header.setPreferredSize(new Dimension(header.getPreferredSize().width, 38));
+        header.setDefaultRenderer(new ColorfulTableHeaderRenderer());
 
         return table;
     }
@@ -946,6 +952,26 @@ public class MainFrame extends JFrame {
                 label.setBorder(new EmptyBorder(0, 8, 0, 8));
             }
             return component;
+        }
+    }
+
+    private static final class ColorfulTableHeaderRenderer extends DefaultTableCellRenderer {
+        private ColorfulTableHeaderRenderer() {
+            setHorizontalAlignment(SwingConstants.LEFT);
+            setOpaque(true);
+            setBackground(PRIMARY);
+            setForeground(Color.WHITE);
+            setFont(new Font("Segoe UI", Font.BOLD, 13));
+            setBorder(new EmptyBorder(10, 10, 10, 10));
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setText(value == null ? "" : value.toString());
+            setBackground(column % 2 == 0 ? PRIMARY : ACCENT);
+            setForeground(Color.WHITE);
+            return this;
         }
     }
 
